@@ -83,7 +83,7 @@ def template_test():
         headers={
           'X-Cloud-Trace-Context' : trace_context_header}
     )
-
+    response = requests.get("https://www.rabbitmq.com/kubernetes/operator/operator-overview.html")
     # [END trace_context_header]
     return response.text + app.config['keyword']
 
