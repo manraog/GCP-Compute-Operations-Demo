@@ -14,6 +14,7 @@
 """
 A sample app demonstrating Stackdriver Trace
 """
+import logging
 import argparse
 import random
 import time
@@ -21,6 +22,7 @@ import time
 # [START trace_demo_imports]
 from flask import Flask
 import google.cloud.logging
+from google.cloud import error_reporting
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 from opencensus.ext.stackdriver.trace_exporter import StackdriverExporter
 from opencensus.trace import execution_context
@@ -39,6 +41,8 @@ client = google.cloud.logging.Client()
 # at INFO level and higher
 client.get_default_handler()
 client.setup_logging()
+##logging.basicConfig(format='%(asctime)s traceId=%(traceId)s spanId=%(spanId)s %(message)s')
+
 
 app = Flask(__name__)
 
@@ -82,11 +86,18 @@ def template_test():
     # [END trace_context_header]
     return response.text + app.config['keyword']
 
+@app.route("/bug")
+def bug():
+    client = error_reporting.Client()
+    try:
+        # simulate calling a method that's not defined
+        raise NameError
+    except Exception:
+        client.report_exception()
+    return "Bug!"
 
 if __name__ == "__main__":
-    config_integration.trace_integrations(['logging'])
-    logging.basicConfig(format='%(asctime)s traceId=%(traceId)s spanId=%(spanId)s %(message)s')
-    config_integration.trace_integrations(['requests'])
+    config_integration.trace_integrations(['logging','requests'])
     parser = argparse.ArgumentParser()
     parser.add_argument("--keyword",  default="", help="name of the service.")
     parser.add_argument("--endpoint", default="", help="endpoint to dispatch appended string, simply respond if not set")
