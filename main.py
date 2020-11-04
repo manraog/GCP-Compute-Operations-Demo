@@ -20,6 +20,7 @@ import time
 
 # [START trace_demo_imports]
 from flask import Flask
+import google.cloud.logging
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 from opencensus.ext.stackdriver.trace_exporter import StackdriverExporter
 from opencensus.trace import execution_context
@@ -29,6 +30,15 @@ from opencensus.trace import config_integration
 # [END trace_demo_imports]
 import requests
 
+# Instantiates a client
+client = google.cloud.logging.Client()
+
+# Retrieves a Cloud Logging handler based on the environment
+# you're running in and integrates the handler with the
+# Python logging module. By default this captures all logs
+# at INFO level and higher
+client.get_default_handler()
+client.setup_logging()
 
 app = Flask(__name__)
 
@@ -74,6 +84,8 @@ def template_test():
 
 
 if __name__ == "__main__":
+    config_integration.trace_integrations(['logging'])
+    logging.basicConfig(format='%(asctime)s traceId=%(traceId)s spanId=%(spanId)s %(message)s')
     config_integration.trace_integrations(['requests'])
     parser = argparse.ArgumentParser()
     parser.add_argument("--keyword",  default="", help="name of the service.")
