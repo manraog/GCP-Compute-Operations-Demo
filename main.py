@@ -68,6 +68,7 @@ def template_test():
         headers={
           'X-Cloud-Trace-Context' : trace_context_header}
     )
+    requests.get('https://www.wikipedia.org/wiki/Rabbit')
     # [END trace_context_header]
     return response.text + app.config['keyword']
 
