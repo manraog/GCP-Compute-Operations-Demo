@@ -92,6 +92,7 @@ def bug():
     client = error_reporting.Client()
     saludo = "hola"
     cuenta = 5 + 10
+    logging.info(saludo)
     try:
         # simulate calling a method that's not defined
         raise NameError
