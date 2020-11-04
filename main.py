@@ -22,6 +22,7 @@ import time
 # [START trace_demo_imports]
 from flask import Flask
 import google.cloud.logging
+import googleclouddebugger
 from google.cloud import error_reporting
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 from opencensus.ext.stackdriver.trace_exporter import StackdriverExporter
@@ -89,6 +90,8 @@ def template_test():
 @app.route("/bug")
 def bug():
     client = error_reporting.Client()
+    saludo = "hola"
+    cuenta = 5 + 10
     try:
         # simulate calling a method that's not defined
         raise NameError
@@ -97,6 +100,11 @@ def bug():
     return "Bug!"
 
 if __name__ == "__main__":
+    googleclouddebugger.enable(
+        module='[MODULE]',
+        version='[VERSION]',
+        breakpoint_enable_canary=True
+    )
     config_integration.trace_integrations(['logging','requests'])
     parser = argparse.ArgumentParser()
     parser.add_argument("--keyword",  default="", help="name of the service.")
